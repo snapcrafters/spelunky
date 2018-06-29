@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Spelunky
+Comment=Spelunky Classic HD
+Exec=spelunky
+Icon=${SNAP}/meta/gui/spelunky.png
+Categories=Game;
+Terminal=false
+StartupNotify=true
+StartupWMClass=tmforeverlauncher.exe
+Keywords=game

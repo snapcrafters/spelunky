@@ -1,0 +1,100 @@
+name: spelunky
+version: '1.1.3'
+summary: Spelunky Classic HD
+description: |
+ Spelunky is a cave exploration / treasure-hunting game inspired by classic
+ platform games and roguelikes, where the goal is to grab as much treasure from
+ the cave as possible. Every time you play the cave's layout will be different.
+ Use your wits, your reflexes, and the items available to you to survive and go
+ ever deeper! Perhaps at the end you may find what you're looking for...
+ 
+ Don't be afraid to die! But also don't be afraid to live! Happy Spelunky-ing!
+
+grade: stable
+confinement: strict
+architectures:
+  - build-on: amd64
+    run-on: [amd64, i386]
+
+apps:
+  spelunky:
+    command: bin/game-launcher $SNAP/game/spelunky
+    environment:
+      LC_ALL: "C.UTF-8"
+    plugs:
+      - desktop
+      - joystick
+      - opengl
+      - pulseaudio
+      - wayland
+      - x11
+
+  launcher:
+    command: bin/game-launcher $SNAP/launcher
+    environment:
+      LC_ALL: "C.UTF-8"
+    plugs:
+      - desktop
+      - desktop-legacy
+      - joystick
+      - opengl
+      - pulseaudio
+      - wayland
+      - x11
+
+parts:
+  enable-i386:
+    plugin: nil
+    build-attributes:
+      - no-system-libraries
+    build-packages:
+      # This snap is built on amd64 only
+      - on amd64:
+        - apt
+        - dpkg
+      - else fail
+    override-build: |
+      snapcraftctl build
+      dpkg --add-architecture i386
+      apt update
+
+  spelunky:
+    plugin: dump
+    source: https://github.com/yancharkin/SpelunkyClassicHD/releases/download/$SNAPCRAFT_PROJECT_VERSION/spelunky_classic_hd_linux.7z
+    build-attributes:
+      - no-system-libraries
+    stage-packages:
+      - libatk1.0-0:i386
+      - libbsd0:i386
+      - libc6:i386
+      - libcairo2:i386
+      - libgcc1:i386
+      - libgdk-pixbuf2.0-0:i386
+      - libglib2.0-0:i386
+      - libglu1-mesa:i386
+      - libgtk2.0-0:i386
+      - libpango-1.0-0:i386
+      - libpulse0:i386
+      - libx11-6:i386
+      - libxau6:i386
+      - libxcb1:i386
+      - libxdmcp6:i386
+      - libxml2:i386
+      - libxrandr2:i386
+    override-build: |
+      snapcraftctl build
+      rm -rf $SNAPCRAFT_PART_INSTALL/lib/x86_64-linux-gnu
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/x86_64-linux-gnu
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/bug
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/doc
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/doc-base
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/lintian
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/man
+    after:
+      - enable-i386
+
+  game-launcher:
+    plugin: dump
+    source: snap/scripts
+    organize:
+      'game-launcher': bin/
